@@ -1,0 +1,858 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>好名好运 AI 取名应用</title>
+  <link rel="stylesheet" href="./src/assets/styles.css">
+  <!-- 添加favicon链接 -->
+  <link rel="icon" href="data:,">
+  <!-- 引入Vue 3 (全局版本) -->
+  <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+</head>
+<body>
+  <div id="app">
+    <div class="app">
+      <header class="header">
+        <div class="container">
+          <h1 class="logo">好名好运 AI</h1>
+          <nav class="nav">
+            <a href="#" @click.prevent="currentView = 'home'" :class="{ 'router-link-active': currentView === 'home' }">首页</a>
+            <a href="#" @click.prevent="currentView = 'generate'" :class="{ 'router-link-active': currentView === 'generate' }">取名</a>
+            <a href="#" @click.prevent="currentView = 'history'" :class="{ 'router-link-active': currentView === 'history' }">历史记录</a>
+            <a href="#" @click.prevent="currentView = 'feedback'" :class="{ 'router-link-active': currentView === 'feedback' }">反馈</a>
+          </nav>
+        </div>
+      </header>
+      
+      <main class="main container">
+        <!-- 首页 -->
+        <div v-if="currentView === 'home'" class="home">
+          <div class="hero">
+            <h1 class="hero-title">为您的孩子取一个吉祥如意的好名字</h1>
+            <p class="hero-subtitle">基于五行、生肖和音韵学，为您的孩子定制一个独特而有意义的名字</p>
+            <button class="btn btn-primary hero-btn" @click="currentView = 'generate'">开始取名</button>
+          </div>
+          
+          <div class="features">
+            <h2 class="section-title">我们的特色</h2>
+            <div class="feature-grid">
+              <div class="feature-card">
+                <h3 class="feature-title">五行分析</h3>
+                <p class="feature-desc">根据出生日期分析五行（金、木、水、火、土）的缺失或平衡，选择合适的名字字形。</p>
+              </div>
+              <div class="feature-card">
+                <h3 class="feature-title">生肖分析</h3>
+                <p class="feature-desc">根据孩子的出生年份，分析生肖，推荐与生肖相配的吉祥名字元素。</p>
+              </div>
+              <div class="feature-card">
+                <h3 class="feature-title">音韵与字形</h3>
+                <p class="feature-desc">生成的名字会确保音韵和谐、字形美观，符合音律的美感。</p>
+              </div>
+              <div class="feature-card">
+                <h3 class="feature-title">性别匹配</h3>
+                <p class="feature-desc">根据性别调整名字风格，以确保名字的性别特征（例如，男孩名字偏阳刚，女孩名字偏柔美）。</p>
+              </div>
+            </div>
+          </div>
+          
+          <div class="how-it-works">
+            <h2 class="section-title">如何使用</h2>
+            <div class="steps">
+              <div class="step">
+                <div class="step-number">1</div>
+                <div class="step-content">
+                  <h3 class="step-title">输入基本信息</h3>
+                  <p class="step-desc">提供孩子的出生日期、时辰（可选）、性别和姓氏。</p>
+                </div>
+              </div>
+              <div class="step">
+                <div class="step-number">2</div>
+                <div class="step-content">
+                  <h3 class="step-title">生成名字推荐</h3>
+                  <p class="step-desc">系统会根据您提供的信息，分析五行和生肖，生成最适合的名字推荐。</p>
+                </div>
+              </div>
+              <div class="step">
+                <div class="step-number">3</div>
+                <div class="step-content">
+                  <h3 class="step-title">查看名字解析</h3>
+                  <p class="step-desc">每个推荐的名字都会附带详细的解析，包括五行分析、生肖相合度和名字寓意。</p>
+                </div>
+              </div>
+              <div class="step">
+                <div class="step-number">4</div>
+                <div class="step-content">
+                  <h3 class="step-title">保存喜欢的名字</h3>
+                  <p class="step-desc">您可以保存喜欢的名字，以便日后查看或与家人分享。</p>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="cta">
+            <h2 class="cta-title">立即为您的孩子取一个好名字</h2>
+            <p class="cta-desc">一个好名字将伴随孩子一生，给予他们好运和祝福。</p>
+            <button class="btn btn-primary cta-btn" @click="currentView = 'generate'">开始取名</button>
+          </div>
+        </div>
+        
+        <!-- 取名页面 -->
+        <div v-if="currentView === 'generate'" class="name-generator">
+          <h1 class="page-title">为您的孩子取名</h1>
+          
+          <!-- 表单部分 -->
+          <div class="card">
+            <h2 class="card-title">输入基本信息</h2>
+            
+            <div class="form-group">
+              <label class="form-label">出生日期</label>
+              <input type="date" class="form-input" v-model="birthDate" required>
+            </div>
+            
+            <div class="form-group">
+              <label class="form-label">出生时辰 (可选)</label>
+              <select class="form-input" v-model="birthTime">
+                <option value="">-- 请选择 --</option>
+                <option value="子时">子时 (23:00-01:00)</option>
+                <option value="丑时">丑时 (01:00-03:00)</option>
+                <option value="寅时">寅时 (03:00-05:00)</option>
+                <option value="卯时">卯时 (05:00-07:00)</option>
+                <option value="辰时">辰时 (07:00-09:00)</option>
+                <option value="巳时">巳时 (09:00-11:00)</option>
+                <option value="午时">午时 (11:00-13:00)</option>
+                <option value="未时">未时 (13:00-15:00)</option>
+                <option value="申时">申时 (15:00-17:00)</option>
+                <option value="酉时">酉时 (17:00-19:00)</option>
+                <option value="戌时">戌时 (19:00-21:00)</option>
+                <option value="亥时">亥时 (21:00-23:00)</option>
+              </select>
+            </div>
+            
+            <div class="form-group">
+              <label class="form-label">性别</label>
+              <div class="radio-group">
+                <label class="radio-label">
+                  <input type="radio" name="gender" value="男" v-model="gender"> 男孩
+                </label>
+                <label class="radio-label">
+                  <input type="radio" name="gender" value="女" v-model="gender"> 女孩
+                </label>
+              </div>
+            </div>
+            
+            <div class="form-group">
+              <label class="form-label">姓氏</label>
+              <input type="text" class="form-input" v-model="lastName" placeholder="请输入姓氏" required>
+            </div>
+            
+            <button class="btn" @click="generateNames" :disabled="!isFormValid || isLoading">
+              {{ isLoading ? '生成中...' : '生成名字' }}
+            </button>
+          </div>
+          
+          <!-- 错误信息 -->
+          <div v-if="error" class="error-message">{{ error }}</div>
+          
+          <!-- 生成的名字列表 -->
+          <div v-if="generatedNames.length > 0" class="generated-names">
+            <h2 class="section-title">推荐名字</h2>
+            
+            <div v-for="name in generatedNames" :key="name.id" class="name-card">
+              <h3 class="name-card-title">{{ name.name }}</h3>
+              <p class="name-card-meaning">寓意: {{ name.meaning }}</p>
+              <div class="name-card-analysis">
+                <p>五行分析: {{ name.wuxing }}</p>
+                <p>生肖分析: {{ name.zodiac }}</p>
+              </div>
+              <div class="name-card-actions">
+                <button class="btn" @click="saveName(name)">保存</button>
+                <button class="btn btn-secondary" @click="shareName(name)">分享</button>
+              </div>
+            </div>
+            
+            <button class="btn btn-secondary regenerate-btn" @click="regenerate" :disabled="isLoading">
+              {{ isLoading ? '生成中...' : '重新生成' }}
+            </button>
+          </div>
+        </div>
+        
+        <!-- 历史记录页面 -->
+        <div v-if="currentView === 'history'" class="history-page">
+          <h1 class="page-title">历史记录</h1>
+          
+          <!-- 保存的名字 -->
+          <div class="saved-names-section">
+            <h2 class="section-title">保存的名字</h2>
+            
+            <div v-if="savedNames.length > 0" class="saved-names">
+              <div v-for="name in savedNames" :key="name.id" class="name-card">
+                <h3 class="name-card-title">{{ name.name }}</h3>
+                <p class="name-card-meaning">寓意: {{ name.meaning }}</p>
+                <div class="name-card-analysis">
+                  <p>五行分析: {{ name.wuxing }}</p>
+                  <p>生肖分析: {{ name.zodiac }}</p>
+                </div>
+                <div class="name-card-actions">
+                  <button class="btn btn-secondary" @click="removeSavedName(name.id)">删除</button>
+                </div>
+              </div>
+            </div>
+            <p v-else class="empty-message">暂无保存的名字</p>
+          </div>
+          
+          <!-- 历史记录 -->
+          <div class="history-section">
+            <h2 class="section-title">生成历史</h2>
+            
+            <div v-if="history.length > 0" class="history-list">
+              <div v-for="item in history" :key="item.id" class="history-card">
+                <div class="history-card-header">
+                  <h3 class="history-card-title">{{ item.lastName }}氏{{ item.gender }}孩取名</h3>
+                  <span class="history-card-date">{{ formatDate(item.date) }}</span>
+                </div>
+                <div class="history-card-details">
+                  <p>出生日期: {{ item.birthDate }}</p>
+                  <p v-if="item.birthTime">出生时辰: {{ item.birthTime }}</p>
+                </div>
+                <div class="history-card-names">
+                  <h4>生成的名字:</h4>
+                  <ul>
+                    <li v-for="name in item.names" :key="name.id">{{ name.name }}</li>
+                  </ul>
+                </div>
+                <div class="history-card-actions">
+                  <button class="btn btn-secondary" @click="removeHistoryItem(item.id)">删除</button>
+                </div>
+              </div>
+            </div>
+            <p v-else class="empty-message">暂无历史记录</p>
+          </div>
+        </div>
+        
+        <!-- 反馈页面 -->
+        <div v-if="currentView === 'feedback'" class="feedback-page">
+          <h1 class="page-title">用户反馈</h1>
+          
+          <div class="card">
+            <h2 class="card-title">您的意见对我们很重要</h2>
+            <p class="card-desc">请告诉我们您对好名好运AI取名应用的体验和建议，帮助我们不断改进。</p>
+            
+            <!-- 成功提交消息 -->
+            <div v-if="submitted" class="success-message">感谢您的反馈！我们会认真考虑您的建议。</div>
+            
+            <!-- 反馈表单 -->
+            <form class="feedback-form" @submit.prevent="submitFeedback">
+              <div class="form-group">
+                <label class="form-label">您的姓名</label>
+                <input type="text" class="form-input" v-model="feedbackName" placeholder="请输入您的姓名">
+              </div>
+              
+              <div class="form-group">
+                <label class="form-label">电子邮箱</label>
+                <input type="email" class="form-input" v-model="feedbackEmail" placeholder="请输入您的电子邮箱">
+              </div>
+              
+              <div class="form-group">
+                <label class="form-label">应用评分</label>
+                <div class="rating-input">
+                  <label v-for="value in 5" :key="value" class="rating-label">
+                    <input type="radio" name="rating" :value="value" v-model="feedbackRating"> {{ value }}星
+                  </label>
+                </div>
+              </div>
+              
+              <div class="form-group">
+                <label class="form-label">您的反馈</label>
+                <textarea class="form-input form-textarea" v-model="feedbackContent" placeholder="请输入您的反馈和建议" rows="5"></textarea>
+              </div>
+              
+              <button type="submit" class="btn">提交反馈</button>
+            </form>
+          </div>
+          
+          <div class="contact-info">
+            <h3>联系我们</h3>
+            <p>如果您有任何问题或建议，也可以通过以下方式联系我们：</p>
+            <p>电子邮箱: contact@haohaoyun.com</p>
+            <p>微信公众号: 好名好运AI</p>
+          </div>
+        </div>
+      </main>
+      
+      <footer class="footer">
+        <div class="container">
+          <p>© 2023 好名好运 AI 取名应用 - 为您的孩子取一个吉祥如意的好名字</p>
+        </div>
+      </footer>
+    </div>
+  </div>
+
+  <script>
+    const { createApp, ref, computed, onMounted } = Vue
+    
+    const app = createApp({
+      setup() {
+        // 创建一个调试日志函数
+        const debug = (message, data) => {
+          const timestamp = new Date().toISOString();
+          if (data) {
+            console.log(`[${timestamp}] ${message}`, data);
+          } else {
+            console.log(`[${timestamp}] ${message}`);
+          }
+          
+          // 也可以将日志添加到页面上
+          const logElement = document.getElementById('debug-log') || createDebugLogElement();
+          const logEntry = document.createElement('div');
+          logEntry.className = 'log-entry';
+          logEntry.innerHTML = `<span class="log-time">[${new Date().toLocaleTimeString()}]</span> <span class="log-message">${message}</span>`;
+          
+          if (data) {
+            const dataElement = document.createElement('pre');
+            dataElement.className = 'log-data';
+            dataElement.textContent = data.toString();
+            logEntry.appendChild(dataElement);
+          }
+          
+          logElement.appendChild(logEntry);
+          logElement.scrollTop = logElement.scrollHeight;
+        };
+        
+        // 创建调试日志元素
+        const createDebugLogElement = () => {
+          const logElement = document.createElement('div');
+          logElement.id = 'debug-log';
+          logElement.style.position = 'fixed';
+          logElement.style.bottom = '0';
+          logElement.style.right = '0';
+          logElement.style.width = '400px';
+          logElement.style.height = '300px';
+          logElement.style.backgroundColor = 'rgba(0, 0, 0, 0.8)';
+          logElement.style.color = 'white';
+          logElement.style.padding = '10px';
+          logElement.style.overflow = 'auto';
+          logElement.style.zIndex = '9999';
+          logElement.style.fontFamily = 'monospace';
+          logElement.style.fontSize = '12px';
+          
+          // 添加标题和关闭按钮
+          const header = document.createElement('div');
+          header.style.display = 'flex';
+          header.style.justifyContent = 'space-between';
+          header.style.marginBottom = '10px';
+          
+          const title = document.createElement('div');
+          title.textContent = '调试日志';
+          title.style.fontWeight = 'bold';
+          
+          const closeButton = document.createElement('button');
+          closeButton.textContent = '关闭';
+          closeButton.style.backgroundColor = '#f44336';
+          closeButton.style.border = 'none';
+          closeButton.style.color = 'white';
+          closeButton.style.padding = '2px 5px';
+          closeButton.style.cursor = 'pointer';
+          closeButton.onclick = () => {
+            logElement.style.display = 'none';
+          };
+          
+          header.appendChild(title);
+          header.appendChild(closeButton);
+          logElement.appendChild(header);
+          
+          document.body.appendChild(logElement);
+          return logElement;
+        };
+        
+        // 当前视图
+        const currentView = ref('home')
+        
+        // 表单数据
+        const birthDate = ref('')
+        const birthTime = ref('')
+        const gender = ref('')
+        const lastName = ref('')
+        
+        // 生成的名字
+        const generatedNames = ref([])
+        
+        // 加载状态
+        const isLoading = ref(false)
+        const error = ref(null)
+        
+        // 历史记录和保存的名字
+        const savedNames = ref([])
+        const history = ref([])
+        
+        // 反馈表单数据
+        const feedbackName = ref('')
+        const feedbackEmail = ref('')
+        const feedbackRating = ref(5)
+        const feedbackContent = ref('')
+        const submitted = ref(false)
+        
+        // API 调用状态
+        const apiStatus = ref('');
+        
+        // 表单验证
+        const isFormValid = computed(() => {
+          const valid = birthDate.value && gender.value && lastName.value
+          debug('表单验证结果:', valid);
+          return valid;
+        })
+        
+        // 格式化日期
+        const formatDate = (dateString) => {
+          const date = new Date(dateString)
+          return date.toLocaleString('zh-CN', {
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit',
+            hour: '2-digit',
+            minute: '2-digit'
+          })
+        }
+        
+        // 生成名字
+        const generateNames = async () => {
+          debug('generateNames 函数开始执行');
+          
+          if (!isFormValid.value) {
+            debug('表单验证失败，退出函数');
+            return;
+          }
+          
+          debug('表单验证通过，开始生成名字');
+          isLoading.value = true;
+          error.value = null;
+          apiStatus.value = '正在准备生成名字...';
+          
+          try {
+            debug('准备调用名字生成接口');
+            debug('请求参数:', {
+              birthDate: birthDate.value,
+              birthTime: birthTime.value,
+              gender: gender.value,
+              lastName: lastName.value
+            });
+            
+            apiStatus.value = '正在调用名字生成接口...';
+            
+            // 调用我们的代理接口
+            debug('发送请求到 /api/generate-names');
+            const response = await fetch('/api/generate-names', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json'
+              },
+              body: JSON.stringify({
+                birthDate: birthDate.value,
+                birthTime: birthTime.value,
+                gender: gender.value,
+                lastName: lastName.value
+              })
+            });
+            
+            debug('收到响应，状态码:', response.status);
+            apiStatus.value = `收到响应，状态码: ${response.status}`;
+            
+            if (!response.ok) {
+              throw new Error(`API请求失败: ${response.status}`);
+            }
+            
+            const data = await response.json();
+            debug('解析响应数据完成');
+            debug('响应数据:', data);
+            
+            apiStatus.value = '正在处理响应数据...';
+            
+            let names = [];
+            
+            // 检查是否是 OpenAI API 的响应
+            if (data && data.fromOpenAI === true) {
+              debug('确认是 OpenAI API 的响应');
+              apiStatus.value = '成功调用了 OpenAI API';
+              
+              const openaiData = data.openaiData; // 获取实际的 OpenAI 响应数据
+              debug('OpenAI 数据:', openaiData);
+              
+              if (openaiData && openaiData.choices && openaiData.choices[0] && openaiData.choices[0].message) {
+                const content = openaiData.choices[0].message.content;
+                debug('OpenAI 响应内容:', content);
+                
+                // 尝试从返回内容中提取JSON
+                const jsonMatch = content.match(/\{[\s\S]*\}/);
+                
+                if (jsonMatch) {
+                  debug('成功从响应中提取 JSON');
+                  const jsonStr = jsonMatch[0];
+                  debug('提取的 JSON 字符串:', jsonStr);
+                  
+                  try {
+                    const result = JSON.parse(jsonStr);
+                    debug('解析 JSON 成功:', result);
+                    
+                    // 为每个名字添加ID
+                    if (result.names && Array.isArray(result.names)) {
+                      names = result.names.map((name, index) => {
+                        // 如果名字不包含姓氏，添加姓氏
+                        if (name.name && !name.name.startsWith(lastName.value)) {
+                          debug(`名字 "${name.name}" 不包含姓氏，添加姓氏`);
+                          name.name = `${lastName.value}${name.name}`;
+                        }
+                        
+                        return {
+                          id: Date.now() + index,
+                          ...name
+                        };
+                      });
+                      
+                      debug('处理后的名字列表:', names);
+                    } else {
+                      debug('JSON 中没有找到 names 数组');
+                      throw new Error('JSON 中没有找到 names 数组');
+                    }
+                  } catch (err) {
+                    debug('解析 JSON 时出错:', err);
+                    throw new Error(`解析 JSON 时出错: ${err.message}`);
+                  }
+                } else {
+                  debug('无法从响应中提取 JSON');
+                  throw new Error('无法从 OpenAI 响应中提取 JSON');
+                }
+              } else {
+                debug('OpenAI 响应格式不正确');
+                throw new Error('OpenAI 响应格式不正确');
+              }
+            } else {
+              debug('不是 OpenAI API 的响应，可能是模拟数据');
+              apiStatus.value = '使用了模拟数据';
+            }
+            
+            // 如果没有成功解析名字，使用模拟数据
+            if (names.length === 0) {
+              debug('没有成功解析名字，使用模拟数据');
+              apiStatus.value = '使用了模拟数据';
+              
+              const year = new Date(birthDate.value).getFullYear();
+              const zodiac = getChineseZodiac(year);
+              const wuxing = getWuXing(birthDate.value);
+              names = generateMockNames(lastName.value, gender.value, zodiac, wuxing);
+              
+              debug('生成的模拟名字:', names);
+            }
+            
+            generatedNames.value = names;
+            debug('名字生成完成，设置到 generatedNames');
+            
+            // 添加到历史记录
+            addToHistory(names);
+            debug('已添加到历史记录');
+            
+            apiStatus.value = '名字生成成功';
+          } catch (err) {
+            debug('生成名字时出错:', err);
+            error.value = err.message || '生成名字时出错';
+            apiStatus.value = `生成名字失败: ${err.message}`;
+            
+            // 如果API调用失败，使用模拟数据
+            debug('使用模拟数据作为后备');
+            const year = new Date(birthDate.value).getFullYear();
+            const zodiac = getChineseZodiac(year);
+            const wuxing = getWuXing(birthDate.value);
+            const names = generateMockNames(lastName.value, gender.value, zodiac, wuxing);
+            
+            debug('生成的模拟名字:', names);
+            generatedNames.value = names;
+            addToHistory(names);
+          } finally {
+            isLoading.value = false;
+            debug('生成名字过程结束，isLoading 设置为 false');
+          }
+        }
+        
+        // 添加到历史记录
+        const addToHistory = (names) => {
+          debug('添加到历史记录:', names);
+          
+          history.value.push({
+            id: Date.now(),
+            date: new Date().toISOString(),
+            birthDate: birthDate.value,
+            birthTime: birthTime.value,
+            gender: gender.value,
+            lastName: lastName.value,
+            names: [...names]
+          });
+          
+          // 只保留最近的20条历史记录
+          if (history.value.length > 20) {
+            debug('历史记录超过20条，裁剪到最近20条');
+            history.value = history.value.slice(-20);
+          }
+          
+          // 保存到本地存储
+          saveToLocalStorage();
+          debug('历史记录已保存到本地存储');
+        }
+        
+        // 保存名字
+        const saveName = (name) => {
+          debug('尝试保存名字:', name);
+          
+          if (!savedNames.value.some(item => item.name === name.name)) {
+            debug('名字未保存过，添加到保存列表');
+            savedNames.value.push(name);
+            saveToLocalStorage();
+            alert(`已保存名字: ${name.name}`);
+            debug('名字已保存');
+          } else {
+            debug('名字已经保存过了');
+            alert(`名字 ${name.name} 已经保存过了`);
+          }
+        }
+        
+        // 重新生成
+        const regenerate = () => {
+          debug('重新生成名字');
+          generateNames();
+        }
+        
+        // 分享名字
+        const shareName = (name) => {
+          debug('分享名字:', name);
+          // 在实际应用中，这里应该实现社交媒体分享功能
+          alert(`分享名字: ${name.name}`);
+        }
+        
+        // 删除历史记录
+        const removeHistoryItem = (id) => {
+          debug('尝试删除历史记录:', id);
+          
+          if (confirm('确定要删除这条历史记录吗？')) {
+            debug('用户确认删除');
+            history.value = history.value.filter(item => item.id !== id);
+            saveToLocalStorage();
+            debug('历史记录已删除');
+          } else {
+            debug('用户取消删除');
+          }
+        }
+        
+        // 删除保存的名字
+        const removeSavedName = (id) => {
+          debug('尝试删除保存的名字:', id);
+          
+          if (confirm('确定要删除这个保存的名字吗？')) {
+            debug('用户确认删除');
+            savedNames.value = savedNames.value.filter(item => item.id !== id);
+            saveToLocalStorage();
+            debug('保存的名字已删除');
+          } else {
+            debug('用户取消删除');
+          }
+        }
+        
+        // 提交反馈
+        const submitFeedback = () => {
+          debug('提交反馈:', {
+            name: feedbackName.value,
+            email: feedbackEmail.value,
+            rating: feedbackRating.value,
+            feedback: feedbackContent.value
+          });
+          
+          // 在实际应用中，这里应该发送数据到服务器
+          console.log('提交反馈:', {
+            name: feedbackName.value,
+            email: feedbackEmail.value,
+            rating: feedbackRating.value,
+            feedback: feedbackContent.value
+          });
+          
+          // 显示成功消息
+          submitted.value = true;
+          debug('反馈提交成功，显示成功消息');
+          
+          // 重置表单
+          feedbackName.value = '';
+          feedbackEmail.value = '';
+          feedbackRating.value = 5;
+          feedbackContent.value = '';
+          debug('反馈表单已重置');
+          
+          // 3秒后隐藏成功消息
+          setTimeout(() => {
+            submitted.value = false;
+            debug('隐藏成功消息');
+          }, 3000);
+        }
+        
+        // 保存到本地存储
+        const saveToLocalStorage = () => {
+          debug('保存数据到本地存储');
+          
+          try {
+            localStorage.setItem('user-data', JSON.stringify({
+              savedNames: savedNames.value,
+              history: history.value
+            }));
+            debug('数据已保存到本地存储');
+          } catch (err) {
+            debug('保存到本地存储时出错:', err);
+          }
+        }
+        
+        // 从本地存储加载
+        const loadFromLocalStorage = () => {
+          debug('从本地存储加载数据');
+          
+          try {
+            const data = localStorage.getItem('user-data');
+            if (data) {
+              debug('找到本地存储数据');
+              const parsed = JSON.parse(data);
+              savedNames.value = parsed.savedNames || [];
+              history.value = parsed.history || [];
+              debug('已加载保存的名字:', savedNames.value.length);
+              debug('已加载历史记录:', history.value.length);
+            } else {
+              debug('本地存储中没有数据');
+            }
+          } catch (err) {
+            debug('从本地存储加载数据失败:', err);
+          }
+        }
+        
+        // 获取中国生肖
+        const getChineseZodiac = (year) => {
+          const zodiacSigns = ['鼠', '牛', '虎', '兔', '龙', '蛇', '马', '羊', '猴', '鸡', '狗', '猪']
+          return zodiacSigns[(year - 4) % 12]
+        }
+        
+        // 简化的五行计算（实际应用中应该更复杂）
+        const getWuXing = (birthDate) => {
+          const date = new Date(birthDate)
+          const month = date.getMonth() + 1
+          
+          // 简化的五行分配
+          if (month >= 3 && month <= 4) return '木'
+          if (month >= 5 && month <= 6) return '火'
+          if (month >= 7 && month <= 8) return '土'
+          if (month >= 9 && month <= 10) return '金'
+          return '水' // 11, 12, 1, 2月
+        }
+        
+        // 生成模拟名字
+        const generateMockNames = (lastName, gender, zodiac, wuxing) => {
+          // 这里应该是基于五行、生肖等因素的复杂逻辑
+          // 现在我们只是返回一些固定的示例
+          
+          const maleNames = [
+            {
+              id: 1,
+              name: `${lastName}浩然`,  // 确保包含姓氏
+              meaning: '胸怀宽广，气宇轩昂',
+              wuxing: '水木组合，生生不息',
+              zodiac: `与${zodiac}相合，寓意勇往直前`
+            },
+            {
+              id: 2,
+              name: `${lastName}俊杰`,
+              meaning: '才智过人，卓尔不凡',
+              wuxing: '金木组合，相辅相成',
+              zodiac: `与${zodiac}相合，寓意聪明才智`
+            },
+            {
+              id: 3,
+              name: `${lastName}志远`,
+              meaning: '志向远大，前程似锦',
+              wuxing: '火土组合，稳固发展',
+              zodiac: `与${zodiac}相合，寓意坚定不移`
+            }
+          ]
+          
+          const femaleNames = [
+            {
+              id: 1,
+              name: `${lastName}雅琪`,  // 确保包含姓氏
+              meaning: '优雅高贵，琪是美玉',
+              wuxing: '土金组合，厚德载物',
+              zodiac: `与${zodiac}相合，寓意温婉贤淑`
+            },
+            {
+              id: 2,
+              name: `${lastName}诗颖`,
+              meaning: '如诗如画，聪颖过人',
+              wuxing: '水火组合，相生相克',
+              zodiac: `与${zodiac}相合，寓意灵秀聪慧`
+            },
+            {
+              id: 3,
+              name: `${lastName}梦瑶`,
+              meaning: '梦幻美好，瑶是美玉',
+              wuxing: '木水组合，生机盎然',
+              zodiac: `与${zodiac}相合，寓意纯洁美好`
+            }
+          ]
+          
+          return gender === '男' ? maleNames : femaleNames
+        }
+        
+        // 检查环境变量
+        const checkEnv = async () => {
+          debug('检查环境变量');
+          
+          try {
+            const response = await fetch('/api/check-env');
+            const data = await response.json();
+            debug('环境变量检查结果:', data);
+            
+            if (data.env.OPENAI_API_KEY === '未设置') {
+              debug('警告: OPENAI_API_KEY 环境变量未设置');
+            }
+          } catch (err) {
+            debug('检查环境变量时出错:', err);
+          }
+        }
+        
+        // 组件挂载时从本地存储加载数据
+        onMounted(() => {
+          loadFromLocalStorage()
+        })
+        
+        return {
+          currentView,
+          birthDate,
+          birthTime,
+          gender,
+          lastName,
+          generatedNames,
+          isLoading,
+          error,
+          savedNames,
+          history,
+          feedbackName,
+          feedbackEmail,
+          feedbackRating,
+          feedbackContent,
+          submitted,
+          isFormValid,
+          formatDate,
+          generateNames,
+          saveName,
+          regenerate,
+          shareName,
+          removeHistoryItem,
+          removeSavedName,
+          submitFeedback,
+          apiStatus
+        }
+      }
+    })
+    
+    app.mount('#app')
+  </script>
+</body>
+</html> 
